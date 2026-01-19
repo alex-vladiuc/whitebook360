@@ -1,14 +1,33 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { Clock } from 'lucide-react';
 
-const Index = () => {
+export default function Index() {
+  const { isAuthenticated, loading, needsPin } = useAuthContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading) {
+      if (!isAuthenticated) {
+        navigate('/auth');
+      } else if (needsPin) {
+        navigate('/set-pin');
+      } else {
+        navigate('/kiosk');
+      }
+    }
+  }, [isAuthenticated, loading, needsPin, navigate]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+        <div className="mx-auto mb-6 h-16 w-16 rounded-2xl bg-primary flex items-center justify-center animate-pulse-ring">
+          <Clock className="h-8 w-8 text-primary-foreground" />
+        </div>
+        <h1 className="text-2xl font-bold text-foreground mb-2">TimeTracker Pro</h1>
+        <p className="text-muted-foreground">Loading...</p>
       </div>
     </div>
   );
-};
-
-export default Index;
+}
