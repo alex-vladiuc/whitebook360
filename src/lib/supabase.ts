@@ -11,7 +11,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  }
 );
 
 export type Database = {
@@ -22,27 +29,18 @@ export type Database = {
           user_id: string;
           full_name: string;
           role: 'admin' | 'employee';
-          employee_id: string | null;
-          pin_hash: string | null;
           created_at: string;
-          updated_at: string;
         };
         Insert: {
           user_id: string;
           full_name: string;
           role?: 'admin' | 'employee';
-          employee_id?: string | null;
-          pin_hash?: string | null;
           created_at?: string;
-          updated_at?: string;
         };
         Update: {
           user_id?: string;
           full_name?: string;
           role?: 'admin' | 'employee';
-          employee_id?: string | null;
-          pin_hash?: string | null;
-          updated_at?: string;
         };
       };
       employees: {
