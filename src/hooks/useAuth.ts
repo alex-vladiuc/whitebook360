@@ -8,6 +8,7 @@ interface Profile {
   role: 'admin' | 'employee';
   employee_id: string | null;
   pin_hash: string | null;
+  approval_status: "pending" | "approved" | "rejected";
 }
 
 export function useAuth() {

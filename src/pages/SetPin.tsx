@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { Clock, Delete } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,8 +23,11 @@ export default function SetPin() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { updatePin } = useAuthContext();
+  const { updatePin, profile } = useAuthContext();
   const navigate = useNavigate();
+  if (profile?.approval_status !== 'approved') {
+    return <Navigate to="/pending-approval" replace />;
+  }
 
   const currentPin = step === 'create' ? pin : confirmPin;
   const setCurrentPin = step === 'create' ? setPin : setConfirmPin;
