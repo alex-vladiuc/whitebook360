@@ -6,9 +6,6 @@ interface Profile {
   user_id: string;
   full_name: string;
   role: 'admin' | 'employee';
-  employee_id: string | null;
-  pin_hash: string | null;
-  approval_status: "pending" | "approved" | "rejected";
 }
 
 export function useAuth() {
@@ -36,6 +33,40 @@ export function useAuth() {
     }
   }, []);
 
+  const ensureProfile = useCallback(
+    async (currentUser: User) => {
+      const existingProfile = await fetchProfile(currentUser.id);
+      if (existingProfile) return existingProfile;
+
+      const fullName =
+        (currentUser.user_metadata?.full_name as string | undefined) ||
+        (currentUser.user_metadata?.name as string | undefined) ||
+        currentUser.email ||
+        'New User';
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .upsert(
+          {
+            user_id: currentUser.id,
+            full_name: fullName,
+            role: 'employee',
+          },
+          { onConflict: 'user_id' }
+        )
+        .select('*')
+        .single();
+
+      if (error) {
+        console.error('Error creating profile:', error);
+        return null;
+      }
+
+      return data as Profile;
+    },
+    [fetchProfile]
+  );
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -46,7 +77,7 @@ export function useAuth() {
         // Defer profile fetch with setTimeout to avoid deadlock
         if (session?.user) {
           setTimeout(() => {
-            fetchProfile(session.user.id).then(setProfile);
+            ensureProfile(session.user).then(setProfile);
           }, 0);
         } else {
           setProfile(null);
@@ -60,7 +91,7 @@ export function useAuth() {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchProfile(session.user.id).then((p) => {
+        ensureProfile(session.user).then((p) => {
           setProfile(p);
           setLoading(false);
         });
@@ -70,7 +101,7 @@ export function useAuth() {
     });
 
     return () => subscription.unsubscribe();
-  }, [fetchProfile]);
+  }, [ensureProfile]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -89,15 +120,6 @@ export function useAuth() {
       },
     });
 
-    if (!error && data.user) {
-      // Create profile
-      await supabase.from('profiles').insert({
-        user_id: data.user.id,
-        full_name: fullName,
-        role: 'employee',
-      });
-    }
-
     return { data, error };
   };
 
@@ -111,21 +133,6 @@ export function useAuth() {
     return { error };
   };
 
-  const updatePin = async (pinHash: string) => {
-    if (!user) return { error: new Error('Not authenticated') };
-    
-    const { error } = await supabase
-      .from('profiles')
-      .update({ pin_hash: pinHash })
-      .eq('user_id', user.id);
-
-    if (!error && profile) {
-      setProfile({ ...profile, pin_hash: pinHash });
-    }
-
-    return { error };
-  };
-
   return {
     user,
     session,
@@ -134,8 +141,6 @@ export function useAuth() {
     signIn,
     signUp,
     signOut,
-    updatePin,
     isAuthenticated: !!user,
-    needsPin: profile && !profile.pin_hash,
   };
 }

@@ -4,20 +4,18 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { Clock } from 'lucide-react';
 
 export default function Index() {
-  const { isAuthenticated, loading, needsPin } = useAuthContext();
+  const { isAuthenticated, loading } = useAuthContext();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!loading) {
       if (!isAuthenticated) {
         navigate('/auth');
-      } else if (needsPin) {
-        navigate('/set-pin');
       } else {
         navigate('/kiosk');
       }
     }
-  }, [isAuthenticated, loading, needsPin, navigate]);
+  }, [isAuthenticated, loading, navigate]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
