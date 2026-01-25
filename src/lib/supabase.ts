@@ -221,11 +221,17 @@ export const shiftQueries = {
     const clockInTime = new Date(shift.clock_in_at);
     const clockOutDate = new Date(clockOutTime);
     const totalMinutes = Math.floor((clockOutDate.getTime() - clockInTime.getTime()) / 60000);
+
+    // Note: Break deduction depends on BREAK_SETTINGS.BREAKS_ARE_PAID
+    // For now, we always deduct breaks from work minutes as the paid/unpaid
+    // status affects payment calculation, not hours tracking
     const workMinutes = totalMinutes - (shift.break_minutes || 0);
 
-    // Standard day is 8 hours = 480 minutes
-    const standardMinutes = Math.min(workMinutes, 480);
-    const overtimeMinutes = Math.max(0, workMinutes - 480);
+    // Standard day hours - configurable via SHIFT_SETTINGS.STANDARD_HOURS_PER_DAY
+    // Default: 8 hours = 480 minutes
+    const standardDayMinutes = 8 * 60; // TODO: Import from settings when converted to DB
+    const standardMinutes = Math.min(workMinutes, standardDayMinutes);
+    const overtimeMinutes = Math.max(0, workMinutes - standardDayMinutes);
 
     const { data, error } = await supabase
       .from('shifts')
@@ -243,6 +249,36 @@ export const shiftQueries = {
 
     if (error) throw error;
     if (!data) throw new Error('Failed to clock out - shift not found');
+    return data as Shift;
+  },
+
+  // Add break time to a shift
+  async addBreak(shiftId: string, breakMinutes: number): Promise<Shift> {
+    // First get the current shift to add to existing break time
+    const { data: shift, error: fetchError } = await supabase
+      .from('shifts')
+      .select('*')
+      .eq('id', shiftId)
+      .is('clock_out_at', null)
+      .maybeSingle();
+
+    if (fetchError) throw fetchError;
+    if (!shift) throw new Error('Shift not found or already clocked out');
+
+    const currentBreakMinutes = shift.break_minutes || 0;
+    const newBreakMinutes = currentBreakMinutes + breakMinutes;
+
+    const { data, error } = await supabase
+      .from('shifts')
+      .update({
+        break_minutes: newBreakMinutes,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', shiftId)
+      .select()
+      .single();
+
+    if (error) throw error;
     return data as Shift;
   },
 

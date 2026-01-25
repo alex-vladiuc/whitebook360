@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LogIn, LogOut, Clock, Calendar, User, Coffee, Timer } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, LogIn, LogOut, Clock, Calendar, User, Coffee, Timer, AlertCircle } from 'lucide-react';
+import { BREAK_SETTINGS, getBreakEntitlement, formatDuration } from '@/lib/settings';
 
 interface OpenShift {
   id: string;
   clock_in_at: string;
+  break_minutes?: number;
 }
 
 interface Employee {
@@ -23,18 +26,22 @@ interface EmployeeDetailScreenProps {
   onBack: () => void;
   onSignIn: () => void;
   onSignOut: () => void;
-  onBreak?: () => void;
+  onBreak?: (breakMinutes: number) => void;
 }
 
-function formatHoursWorked(clockInAt: string): { hours: number; display: string } {
+function formatHoursWorked(clockInAt: string, breakMinutes: number = 0): { hours: number; display: string } {
   const clockIn = new Date(clockInAt);
   const now = new Date();
   const diffMs = now.getTime() - clockIn.getTime();
   const diffMins = Math.floor(diffMs / 60000);
-  const hours = diffMins / 60;
+
+  // Deduct break if unpaid
+  const workMins = BREAK_SETTINGS.BREAKS_ARE_PAID ? diffMins : diffMins - breakMinutes;
+  const hours = workMins / 60;
+
   return {
     hours: Math.round(hours * 10) / 10,
-    display: `${Math.floor(hours)}.${Math.round((hours % 1) * 10)}`
+    display: `${Math.floor(Math.max(0, hours))}.${Math.round((Math.max(0, hours) % 1) * 10)}`
   };
 }
 
@@ -68,8 +75,16 @@ export function EmployeeDetailScreen({
 }: EmployeeDetailScreenProps) {
   const [hoursWorked, setHoursWorked] = useState({ hours: 0, display: '0.0' });
   const [lastAction, setLastAction] = useState({ time: '', relative: '' });
+  const [breakEntitlement, setBreakEntitlement] = useState<{
+    isEntitled: boolean;
+    minutesEntitled: number;
+    minutesRemaining: number;
+    hoursWorked: number;
+    message: string;
+  } | null>(null);
 
   const isSignedIn = employee.hasOpenShift;
+  const breaksTaken = employee.openShift?.break_minutes || 0;
   const initials = employee.full_name
     .split(' ')
     .map((n) => n[0])
@@ -79,20 +94,36 @@ export function EmployeeDetailScreen({
   useEffect(() => {
     if (!isSignedIn || !employee.openShift?.clock_in_at) {
       setHoursWorked({ hours: 0, display: '0.0' });
+      setBreakEntitlement(null);
       return;
     }
 
     const clockInAt = employee.openShift.clock_in_at;
-    setHoursWorked(formatHoursWorked(clockInAt));
+    const breakMins = employee.openShift.break_minutes || 0;
+
+    setHoursWorked(formatHoursWorked(clockInAt, breakMins));
     setLastAction(formatLastAction(clockInAt));
+    setBreakEntitlement(getBreakEntitlement(clockInAt, breakMins));
 
     const interval = setInterval(() => {
-      setHoursWorked(formatHoursWorked(clockInAt));
+      setHoursWorked(formatHoursWorked(clockInAt, breakMins));
       setLastAction(formatLastAction(clockInAt));
+      setBreakEntitlement(getBreakEntitlement(clockInAt, breakMins));
     }, 60000);
 
     return () => clearInterval(interval);
   }, [isSignedIn, employee.openShift]);
+
+  const handleTakeBreak = () => {
+    if (onBreak && breakEntitlement) {
+      // Use the entitled break duration, capped by max if set
+      let breakDuration = BREAK_SETTINGS.DEFAULT_BREAK_MINUTES;
+      if (BREAK_SETTINGS.MAX_BREAK_MINUTES > 0) {
+        breakDuration = Math.min(breakDuration, BREAK_SETTINGS.MAX_BREAK_MINUTES);
+      }
+      onBreak(breakDuration);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-gradient-to-br from-slate-50 to-blue-50 p-6 overflow-auto">
@@ -161,7 +192,9 @@ export function EmployeeDetailScreen({
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="h-5 w-5 text-slate-600" />
             <span className="font-semibold text-slate-700">Today's Work Time</span>
-            <span className="text-xs text-slate-400">(Break deducted)</span>
+            {!BREAK_SETTINGS.BREAKS_ARE_PAID && breaksTaken > 0 && (
+              <Badge variant="outline" className="text-xs">Break deducted</Badge>
+            )}
           </div>
 
           <div className="flex items-center gap-4 mb-4">
@@ -175,6 +208,25 @@ export function EmployeeDetailScreen({
               </p>
             </div>
           </div>
+
+          {/* Break Info */}
+          {isSignedIn && breakEntitlement && (
+            <div className="mb-4 p-3 rounded-lg bg-white/60">
+              <div className="flex items-center gap-2 mb-2">
+                <Coffee className="h-4 w-4 text-orange-500" />
+                <span className="text-sm font-medium text-slate-700">Break Status</span>
+                <Badge variant={BREAK_SETTINGS.BREAKS_ARE_PAID ? 'default' : 'secondary'} className="text-xs">
+                  {BREAK_SETTINGS.BREAKS_ARE_PAID ? 'Paid' : 'Unpaid'}
+                </Badge>
+              </div>
+              <p className="text-sm text-slate-600">{breakEntitlement.message}</p>
+              {breaksTaken > 0 && (
+                <p className="text-xs text-slate-500 mt-1">
+                  Break taken: {formatDuration(breaksTaken)}
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="flex items-center gap-2 text-sm">
             {isSignedIn ? (
@@ -203,15 +255,25 @@ export function EmployeeDetailScreen({
               <LogOut className="h-5 w-5 mr-2" />
               Sign Out
             </Button>
-            {onBreak && (
+            {onBreak && breakEntitlement && (
               <Button
-                onClick={onBreak}
+                onClick={handleTakeBreak}
                 variant="outline"
                 className="w-64 h-14 text-lg rounded-xl"
+                disabled={!breakEntitlement.isEntitled}
               >
                 <Coffee className="h-5 w-5 mr-2" />
-                Take a Break
+                {breakEntitlement.isEntitled
+                  ? `Take ${BREAK_SETTINGS.DEFAULT_BREAK_MINUTES}min Break`
+                  : breakEntitlement.message
+                }
               </Button>
+            )}
+            {!breakEntitlement?.isEntitled && breakEntitlement && (
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" />
+                {breakEntitlement.message}
+              </p>
             )}
           </>
         ) : (

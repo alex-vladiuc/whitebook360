@@ -12,6 +12,7 @@ import { EmployeeDetailScreen } from '@/components/kiosk/EmployeeDetailScreen';
 import { MySpace } from '@/components/kiosk/MySpace';
 import { toast } from 'sonner';
 import { employeeQueries, authQueries, shiftQueries, visitorQueries, Employee, Shift } from '@/lib/supabase';
+import { KIOSK_SETTINGS, BREAK_SETTINGS, formatDuration } from '@/lib/settings';
 
 type FlowStep = 'idle' | 'pin' | 'detail' | 'camera' | 'visitor' | 'myspace-pin' | 'myspace';
 
@@ -195,9 +196,38 @@ export default function Kiosk() {
     setSelectedEmployee(null);
   };
 
-  const handleBreak = () => {
-    // TODO: Implement break functionality
-    toast.info('Break feature coming soon!');
+  const handleBreak = async (breakMinutes: number) => {
+    if (!selectedEmployee || !selectedEmployee.openShiftId) {
+      toast.error('No active shift found');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const updatedShift = await shiftQueries.addBreak(selectedEmployee.openShiftId, breakMinutes);
+
+      // Update local state
+      setEmployees((prev) =>
+        prev.map((emp) =>
+          emp.id === selectedEmployee.id
+            ? { ...emp, openShift: updatedShift }
+            : emp
+        )
+      );
+
+      // Update selected employee
+      setSelectedEmployee((prev) =>
+        prev ? { ...prev, openShift: updatedShift } : null
+      );
+
+      const breakType = BREAK_SETTINGS.BREAKS_ARE_PAID ? 'paid' : 'unpaid';
+      toast.success(`${formatDuration(breakMinutes)} ${breakType} break recorded for ${selectedEmployee.full_name}`);
+    } catch (err) {
+      console.error('Break error:', err);
+      toast.error('Failed to record break. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCameraCapture = async (imageBlob: Blob) => {
@@ -331,8 +361,8 @@ export default function Kiosk() {
             <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg sm:text-xl font-semibold text-foreground">WhiteBook 360</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">Select Your Profile</p>
+            <h1 className="text-lg sm:text-xl font-semibold text-foreground">{KIOSK_SETTINGS.APP_NAME}</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">{KIOSK_SETTINGS.APP_TAGLINE}</p>
           </div>
         </Card>
       </div>
@@ -403,7 +433,7 @@ export default function Kiosk() {
       {/* Footer */}
       <footer className="py-4 sm:py-6 text-center">
         <p className="text-xs sm:text-sm text-muted-foreground">
-          © 2026 WhiteBook 360 • All rights reserved
+          © {new Date().getFullYear()} {KIOSK_SETTINGS.FOOTER_COMPANY_NAME} • All rights reserved
         </p>
       </footer>
 

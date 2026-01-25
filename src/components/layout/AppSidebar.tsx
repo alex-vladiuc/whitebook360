@@ -187,7 +187,7 @@ export function AppSidebar({
   const mobileDrawer = (
       <div className={cn("fixed inset-0 z-50", mobileOpen ? "block" : "hidden")}>
         <div className="absolute inset-0 bg-black/40" onClick={() => onMobileOpenChange(false)} />
-        <aside className="absolute left-0 top-0 h-full w-[280px] bg-card border-r shadow-modal">
+        <aside className="absolute left-0 top-0 h-full w-[280px] bg-card border-r shadow-modal flex flex-col">
           <div className="flex items-center justify-between px-4 py-4 border-b">
             <div>
               <div className="text-sm font-semibold">WhiteBook 360</div>
@@ -202,7 +202,7 @@ export function AppSidebar({
             </button>
           </div>
 
-          <div className="px-3 py-4 space-y-6 overflow-y-auto h-[calc(100%-72px)]">
+          <div className="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
             <NavSection title="General" items={generalItems} collapsed={false} />
             {isAdmin && (
                 <>
@@ -210,6 +210,31 @@ export function AppSidebar({
                   <NavSection title="Administration" items={adminItems} collapsed={false} />
                 </>
             )}
+          </div>
+
+          {/* Footer user pill with logout for mobile */}
+          <div className="border-t border-border p-3">
+            <div className="flex items-center gap-3 rounded-xl bg-muted/40 p-2">
+              <Avatar className="h-9 w-9">
+                <AvatarFallback className="bg-primary/10 text-primary text-sm">{initials}</AvatarFallback>
+              </Avatar>
+
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium truncate">{profile?.full_name || user?.email}</div>
+                <div className="text-xs text-muted-foreground capitalize">{profile?.role || "user"}</div>
+              </div>
+
+              <button
+                  onClick={() => {
+                    signOut();
+                    onMobileOpenChange(false);
+                  }}
+                  className="rounded-md p-2 hover:bg-muted transition-colors"
+                  title="Sign out"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </aside>
       </div>
