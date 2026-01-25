@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Archive,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -153,6 +154,28 @@ export function AppSidebar({
                   <NavSection title="Administration" items={adminItems} collapsed={collapsed} />
                 </div>
             )}
+            {isAdmin && (
+                <div className="pt-2">
+                  {!collapsed && <div className="mx-3 my-2 h-px bg-border" />}
+                  <div className="space-y-2">
+                    {!collapsed && (
+                        <div className="px-3 text-[11px] font-semibold tracking-wider text-muted-foreground">
+                          SETTINGS
+                        </div>
+                    )}
+                    <nav className="space-y-1">
+                      <Link
+                          to="/company-settings"
+                          className={cn("nav-item", collapsed && "justify-center")}
+                          title={collapsed ? "Company Settings" : undefined}
+                      >
+                        <Settings className="h-4 w-4 shrink-0" />
+                        {!collapsed && <span className="text-sm">Company Settings</span>}
+                      </Link>
+                    </nav>
+                  </div>
+                </div>
+            )}
           </div>
 
           {/* Footer user pill */}
@@ -208,6 +231,26 @@ export function AppSidebar({
                 <>
                   <div className="h-px bg-border" />
                   <NavSection title="Administration" items={adminItems} collapsed={false} />
+                </>
+            )}
+            {isAdmin && (
+                <>
+                  <div className="h-px bg-border" />
+                  <div className="space-y-2">
+                    <div className="px-3 text-[11px] font-semibold tracking-wider text-muted-foreground">
+                      SETTINGS
+                    </div>
+                    <nav className="space-y-1">
+                      <Link
+                          to="/company-settings"
+                          className="nav-item"
+                          onClick={() => onMobileOpenChange(false)}
+                      >
+                        <Settings className="h-4 w-4 shrink-0" />
+                        <span className="text-sm">Company Settings</span>
+                      </Link>
+                    </nav>
+                  </div>
                 </>
             )}
           </div>

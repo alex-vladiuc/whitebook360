@@ -1,9 +1,8 @@
 /**
  * Application Settings Configuration
  *
- * These settings can be customized per company. In the future, these will be
- * stored in the database and managed via a Settings page. For now, they are
- * configured here as constants.
+ * These settings can be customized per company. Settings are stored in the database
+ * and loaded on app startup. The constants below serve as defaults.
  *
  * UK Working Time Regulations:
  * - Workers have the right to one uninterrupted 20-minute rest break during
@@ -12,265 +11,270 @@
  */
 
 // =============================================================================
-// BREAK SETTINGS
+// SETTINGS STORAGE - Runtime settings that can be updated from the database
 // =============================================================================
 
-export const BREAK_SETTINGS = {
-  /**
-   * Whether breaks are paid or unpaid
-   * - true: Break time is included in paid hours
-   * - false: Break time is deducted from paid hours
-   */
+// Default settings values
+const DEFAULT_BREAK_SETTINGS = {
   BREAKS_ARE_PAID: false,
-
-  /**
-   * Minimum hours worked before a break is required/allowed
-   * UK Regulation: 6 hours for adults, 4.5 hours for young workers
-   */
   MIN_HOURS_BEFORE_BREAK: 6,
-
-  /**
-   * Default break duration in minutes
-   * UK Regulation: Minimum 20 minutes for adults, 30 minutes for young workers
-   */
   DEFAULT_BREAK_MINUTES: 30,
-
-  /**
-   * Maximum break duration in minutes (optional cap)
-   * Set to 0 for no maximum
-   */
   MAX_BREAK_MINUTES: 60,
-
-  /**
-   * Allow multiple breaks per shift
-   */
   ALLOW_MULTIPLE_BREAKS: true,
-
-  /**
-   * Auto-deduct break if shift is longer than this many hours
-   * Set to 0 to disable auto-deduction
-   * Some companies automatically deduct a lunch break for long shifts
-   */
   AUTO_DEDUCT_BREAK_AFTER_HOURS: 0,
-
-  /**
-   * Auto-deduct break duration in minutes (if AUTO_DEDUCT_BREAK_AFTER_HOURS > 0)
-   */
   AUTO_DEDUCT_BREAK_MINUTES: 30,
 };
 
-// =============================================================================
-// SHIFT SETTINGS
-// =============================================================================
-
-export const SHIFT_SETTINGS = {
-  /**
-   * Standard working hours per day (for overtime calculation)
-   */
+const DEFAULT_SHIFT_SETTINGS = {
   STANDARD_HOURS_PER_DAY: 8,
-
-  /**
-   * Standard working hours per week
-   */
   STANDARD_HOURS_PER_WEEK: 40,
-
-  /**
-   * Overtime multiplier (e.g., 1.5 for time-and-a-half)
-   */
   OVERTIME_MULTIPLIER: 1.5,
-
-  /**
-   * Weekend overtime multiplier
-   */
   WEEKEND_OVERTIME_MULTIPLIER: 2.0,
-
-  /**
-   * Minimum shift duration in minutes (to prevent accidental clock-ins)
-   */
   MIN_SHIFT_DURATION_MINUTES: 15,
-
-  /**
-   * Maximum shift duration in hours (safety limit)
-   */
   MAX_SHIFT_DURATION_HOURS: 16,
-
-  /**
-   * Require photo for clock in
-   */
   REQUIRE_CLOCK_IN_PHOTO: true,
-
-  /**
-   * Require photo for clock out
-   */
   REQUIRE_CLOCK_OUT_PHOTO: true,
-
-  /**
-   * Allow clock in without PIN (for kiosks in secure areas)
-   */
   ALLOW_CLOCK_IN_WITHOUT_PIN: false,
-
-  /**
-   * Round shift times to nearest X minutes (0 = no rounding)
-   * Common values: 5, 15, 30
-   */
   ROUND_SHIFT_TIMES_TO_MINUTES: 0,
 };
 
-// =============================================================================
-// INVOICE SETTINGS
-// =============================================================================
-
-export const INVOICE_SETTINGS = {
-  /**
-   * Default company name for invoices
-   */
+const DEFAULT_INVOICE_SETTINGS = {
   COMPANY_NAME: 'INSPIRA GROUP LTD',
-
-  /**
-   * Default company address
-   */
   COMPANY_ADDRESS: 'Manor Farm, Roxhill Rd\nBedford MK43 0QG',
-
-  /**
-   * Company website
-   */
   COMPANY_WEBSITE: 'www.inspira.london',
-
-  /**
-   * Company email
-   */
   COMPANY_EMAIL: 'office@inspira.london',
-
-  /**
-   * Company phone
-   */
   COMPANY_PHONE: '0800 048 7721',
-
-  /**
-   * Invoice prefix (e.g., "INV-" results in "INV-001")
-   */
   INVOICE_PREFIX: '',
-
-  /**
-   * Default payment terms in days
-   */
   PAYMENT_TERMS_DAYS: 30,
-
-  /**
-   * Tax rate (0.20 = 20% VAT)
-   * Set to 0 if tax is not applicable or handled separately
-   */
   TAX_RATE: 0,
-
-  /**
-   * Tax note to display on invoices
-   */
   TAX_NOTE: 'Tax included. Contractor must ensure all applicable taxes are paid to HMRC.',
-
-  /**
-   * Currency symbol
-   */
   CURRENCY_SYMBOL: '£',
-
-  /**
-   * Currency code
-   */
   CURRENCY_CODE: 'GBP',
 };
 
-// =============================================================================
-// LEAVE SETTINGS
-// =============================================================================
-
-export const LEAVE_SETTINGS = {
-  /**
-   * Annual leave entitlement in days
-   * UK Statutory: 28 days (including bank holidays) for full-time
-   */
+const DEFAULT_LEAVE_SETTINGS = {
   ANNUAL_LEAVE_DAYS: 28,
-
-  /**
-   * Allow carry over of unused leave
-   */
   ALLOW_LEAVE_CARRY_OVER: true,
-
-  /**
-   * Maximum days that can be carried over
-   */
   MAX_CARRY_OVER_DAYS: 5,
-
-  /**
-   * Require manager approval for leave requests
-   */
   REQUIRE_LEAVE_APPROVAL: true,
-
-  /**
-   * Minimum notice days for leave requests
-   */
   MIN_NOTICE_DAYS: 1,
-
-  /**
-   * Allow half-day leave requests
-   */
   ALLOW_HALF_DAY_LEAVE: true,
 };
 
-// =============================================================================
-// KIOSK SETTINGS
-// =============================================================================
-
-export const KIOSK_SETTINGS = {
-  /**
-   * Application name displayed in kiosk
-   */
+const DEFAULT_KIOSK_SETTINGS = {
   APP_NAME: 'WhiteBook 360',
-
-  /**
-   * Tagline displayed in kiosk header
-   */
   APP_TAGLINE: 'Select Your Profile',
-
-  /**
-   * Company name for footer
-   */
   FOOTER_COMPANY_NAME: 'WhiteBook 360',
-
-  /**
-   * Show visitor sign-in option
-   */
   SHOW_VISITOR_SIGN_IN: true,
-
-  /**
-   * Auto-logout timeout in seconds (0 = disabled)
-   * Returns to idle state after this many seconds of inactivity
-   */
   AUTO_LOGOUT_SECONDS: 60,
-
-  /**
-   * Show employee department on cards
-   */
   SHOW_DEPARTMENT: true,
-
-  /**
-   * Show employee position on cards
-   */
   SHOW_POSITION: false,
-
-  /**
-   * PIN length required
-   */
   PIN_LENGTH: 4,
-
-  /**
-   * Show clock on kiosk
-   */
   SHOW_CLOCK: true,
-
-  /**
-   * 24-hour time format (false = 12-hour with AM/PM)
-   */
   USE_24_HOUR_TIME: true,
 };
+
+// Runtime settings - these can be updated from the database
+let runtimeBreakSettings = { ...DEFAULT_BREAK_SETTINGS };
+let runtimeShiftSettings = { ...DEFAULT_SHIFT_SETTINGS };
+let runtimeInvoiceSettings = { ...DEFAULT_INVOICE_SETTINGS };
+let runtimeLeaveSettings = { ...DEFAULT_LEAVE_SETTINGS };
+let runtimeKioskSettings = { ...DEFAULT_KIOSK_SETTINGS };
+
+// Settings loaded flag
+let settingsLoaded = false;
+
+// =============================================================================
+// EXPORTED SETTINGS - These read from runtime settings
+// =============================================================================
+
+export const BREAK_SETTINGS = {
+  get BREAKS_ARE_PAID() { return runtimeBreakSettings.BREAKS_ARE_PAID; },
+  get MIN_HOURS_BEFORE_BREAK() { return runtimeBreakSettings.MIN_HOURS_BEFORE_BREAK; },
+  get DEFAULT_BREAK_MINUTES() { return runtimeBreakSettings.DEFAULT_BREAK_MINUTES; },
+  get MAX_BREAK_MINUTES() { return runtimeBreakSettings.MAX_BREAK_MINUTES; },
+  get ALLOW_MULTIPLE_BREAKS() { return runtimeBreakSettings.ALLOW_MULTIPLE_BREAKS; },
+  get AUTO_DEDUCT_BREAK_AFTER_HOURS() { return runtimeBreakSettings.AUTO_DEDUCT_BREAK_AFTER_HOURS; },
+  get AUTO_DEDUCT_BREAK_MINUTES() { return runtimeBreakSettings.AUTO_DEDUCT_BREAK_MINUTES; },
+};
+
+export const SHIFT_SETTINGS = {
+  get STANDARD_HOURS_PER_DAY() { return runtimeShiftSettings.STANDARD_HOURS_PER_DAY; },
+  get STANDARD_HOURS_PER_WEEK() { return runtimeShiftSettings.STANDARD_HOURS_PER_WEEK; },
+  get OVERTIME_MULTIPLIER() { return runtimeShiftSettings.OVERTIME_MULTIPLIER; },
+  get WEEKEND_OVERTIME_MULTIPLIER() { return runtimeShiftSettings.WEEKEND_OVERTIME_MULTIPLIER; },
+  get MIN_SHIFT_DURATION_MINUTES() { return runtimeShiftSettings.MIN_SHIFT_DURATION_MINUTES; },
+  get MAX_SHIFT_DURATION_HOURS() { return runtimeShiftSettings.MAX_SHIFT_DURATION_HOURS; },
+  get REQUIRE_CLOCK_IN_PHOTO() { return runtimeShiftSettings.REQUIRE_CLOCK_IN_PHOTO; },
+  get REQUIRE_CLOCK_OUT_PHOTO() { return runtimeShiftSettings.REQUIRE_CLOCK_OUT_PHOTO; },
+  get ALLOW_CLOCK_IN_WITHOUT_PIN() { return runtimeShiftSettings.ALLOW_CLOCK_IN_WITHOUT_PIN; },
+  get ROUND_SHIFT_TIMES_TO_MINUTES() { return runtimeShiftSettings.ROUND_SHIFT_TIMES_TO_MINUTES; },
+};
+
+export const INVOICE_SETTINGS = {
+  get COMPANY_NAME() { return runtimeInvoiceSettings.COMPANY_NAME; },
+  get COMPANY_ADDRESS() { return runtimeInvoiceSettings.COMPANY_ADDRESS; },
+  get COMPANY_WEBSITE() { return runtimeInvoiceSettings.COMPANY_WEBSITE; },
+  get COMPANY_EMAIL() { return runtimeInvoiceSettings.COMPANY_EMAIL; },
+  get COMPANY_PHONE() { return runtimeInvoiceSettings.COMPANY_PHONE; },
+  get INVOICE_PREFIX() { return runtimeInvoiceSettings.INVOICE_PREFIX; },
+  get PAYMENT_TERMS_DAYS() { return runtimeInvoiceSettings.PAYMENT_TERMS_DAYS; },
+  get TAX_RATE() { return runtimeInvoiceSettings.TAX_RATE; },
+  get TAX_NOTE() { return runtimeInvoiceSettings.TAX_NOTE; },
+  get CURRENCY_SYMBOL() { return runtimeInvoiceSettings.CURRENCY_SYMBOL; },
+  get CURRENCY_CODE() { return runtimeInvoiceSettings.CURRENCY_CODE; },
+};
+
+export const LEAVE_SETTINGS = {
+  get ANNUAL_LEAVE_DAYS() { return runtimeLeaveSettings.ANNUAL_LEAVE_DAYS; },
+  get ALLOW_LEAVE_CARRY_OVER() { return runtimeLeaveSettings.ALLOW_LEAVE_CARRY_OVER; },
+  get MAX_CARRY_OVER_DAYS() { return runtimeLeaveSettings.MAX_CARRY_OVER_DAYS; },
+  get REQUIRE_LEAVE_APPROVAL() { return runtimeLeaveSettings.REQUIRE_LEAVE_APPROVAL; },
+  get MIN_NOTICE_DAYS() { return runtimeLeaveSettings.MIN_NOTICE_DAYS; },
+  get ALLOW_HALF_DAY_LEAVE() { return runtimeLeaveSettings.ALLOW_HALF_DAY_LEAVE; },
+};
+
+export const KIOSK_SETTINGS = {
+  get APP_NAME() { return runtimeKioskSettings.APP_NAME; },
+  get APP_TAGLINE() { return runtimeKioskSettings.APP_TAGLINE; },
+  get FOOTER_COMPANY_NAME() { return runtimeKioskSettings.FOOTER_COMPANY_NAME; },
+  get SHOW_VISITOR_SIGN_IN() { return runtimeKioskSettings.SHOW_VISITOR_SIGN_IN; },
+  get AUTO_LOGOUT_SECONDS() { return runtimeKioskSettings.AUTO_LOGOUT_SECONDS; },
+  get SHOW_DEPARTMENT() { return runtimeKioskSettings.SHOW_DEPARTMENT; },
+  get SHOW_POSITION() { return runtimeKioskSettings.SHOW_POSITION; },
+  get PIN_LENGTH() { return runtimeKioskSettings.PIN_LENGTH; },
+  get SHOW_CLOCK() { return runtimeKioskSettings.SHOW_CLOCK; },
+  get USE_24_HOUR_TIME() { return runtimeKioskSettings.USE_24_HOUR_TIME; },
+};
+
+// =============================================================================
+// SETTINGS MANAGEMENT FUNCTIONS
+// =============================================================================
+
+/**
+ * Update break settings at runtime
+ */
+export function updateBreakSettings(settings: Partial<typeof DEFAULT_BREAK_SETTINGS>) {
+  runtimeBreakSettings = { ...runtimeBreakSettings, ...settings };
+  saveSettingsToLocalStorage();
+}
+
+/**
+ * Update shift settings at runtime
+ */
+export function updateShiftSettings(settings: Partial<typeof DEFAULT_SHIFT_SETTINGS>) {
+  runtimeShiftSettings = { ...runtimeShiftSettings, ...settings };
+  saveSettingsToLocalStorage();
+}
+
+/**
+ * Update invoice settings at runtime
+ */
+export function updateInvoiceSettings(settings: Partial<typeof DEFAULT_INVOICE_SETTINGS>) {
+  runtimeInvoiceSettings = { ...runtimeInvoiceSettings, ...settings };
+  saveSettingsToLocalStorage();
+}
+
+/**
+ * Update leave settings at runtime
+ */
+export function updateLeaveSettings(settings: Partial<typeof DEFAULT_LEAVE_SETTINGS>) {
+  runtimeLeaveSettings = { ...runtimeLeaveSettings, ...settings };
+  saveSettingsToLocalStorage();
+}
+
+/**
+ * Update kiosk settings at runtime
+ */
+export function updateKioskSettings(settings: Partial<typeof DEFAULT_KIOSK_SETTINGS>) {
+  runtimeKioskSettings = { ...runtimeKioskSettings, ...settings };
+  saveSettingsToLocalStorage();
+}
+
+/**
+ * Get all settings as a flat object (for saving to database)
+ */
+export function getAllSettings() {
+  return {
+    break: { ...runtimeBreakSettings },
+    shift: { ...runtimeShiftSettings },
+    invoice: { ...runtimeInvoiceSettings },
+    leave: { ...runtimeLeaveSettings },
+    kiosk: { ...runtimeKioskSettings },
+  };
+}
+
+/**
+ * Load all settings from an object (from database)
+ */
+export function loadAllSettings(settings: {
+  break?: Partial<typeof DEFAULT_BREAK_SETTINGS>;
+  shift?: Partial<typeof DEFAULT_SHIFT_SETTINGS>;
+  invoice?: Partial<typeof DEFAULT_INVOICE_SETTINGS>;
+  leave?: Partial<typeof DEFAULT_LEAVE_SETTINGS>;
+  kiosk?: Partial<typeof DEFAULT_KIOSK_SETTINGS>;
+}) {
+  if (settings.break) runtimeBreakSettings = { ...DEFAULT_BREAK_SETTINGS, ...settings.break };
+  if (settings.shift) runtimeShiftSettings = { ...DEFAULT_SHIFT_SETTINGS, ...settings.shift };
+  if (settings.invoice) runtimeInvoiceSettings = { ...DEFAULT_INVOICE_SETTINGS, ...settings.invoice };
+  if (settings.leave) runtimeLeaveSettings = { ...DEFAULT_LEAVE_SETTINGS, ...settings.leave };
+  if (settings.kiosk) runtimeKioskSettings = { ...DEFAULT_KIOSK_SETTINGS, ...settings.kiosk };
+  settingsLoaded = true;
+}
+
+/**
+ * Reset all settings to defaults
+ */
+export function resetAllSettings() {
+  runtimeBreakSettings = { ...DEFAULT_BREAK_SETTINGS };
+  runtimeShiftSettings = { ...DEFAULT_SHIFT_SETTINGS };
+  runtimeInvoiceSettings = { ...DEFAULT_INVOICE_SETTINGS };
+  runtimeLeaveSettings = { ...DEFAULT_LEAVE_SETTINGS };
+  runtimeKioskSettings = { ...DEFAULT_KIOSK_SETTINGS };
+  localStorage.removeItem('company_settings');
+}
+
+/**
+ * Check if settings have been loaded
+ */
+export function areSettingsLoaded() {
+  return settingsLoaded;
+}
+
+// =============================================================================
+// LOCAL STORAGE PERSISTENCE (as backup/cache)
+// =============================================================================
+
+const SETTINGS_STORAGE_KEY = 'company_settings';
+
+/**
+ * Save settings to localStorage
+ */
+function saveSettingsToLocalStorage() {
+  try {
+    const settings = getAllSettings();
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  } catch (err) {
+    console.error('Failed to save settings to localStorage:', err);
+  }
+}
+
+/**
+ * Load settings from localStorage
+ */
+export function loadSettingsFromLocalStorage() {
+  try {
+    const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (stored) {
+      const settings = JSON.parse(stored);
+      loadAllSettings(settings);
+      return true;
+    }
+  } catch (err) {
+    console.error('Failed to load settings from localStorage:', err);
+  }
+  return false;
+}
 
 // =============================================================================
 // HELPER FUNCTIONS

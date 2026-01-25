@@ -22,6 +22,7 @@ import UserManagement from "./pages/admin/UserManagement";
 import InvoiceManagement from "./pages/admin/InvoiceManagement";
 import InvoiceArchive from "./pages/admin/InvoiceArchive";
 import GlobalArchive from "./pages/admin/GlobalArchive";
+import CompanySettings from "./pages/CompanySettings";
 
 // Kiosk variants
 import KioskPrivate from "./pages/KioskPrivate";
@@ -45,6 +46,16 @@ const App = () => (
               <Route path="/pending-approval" element={<PendingApproval />} />
 
               {/* Everything else requires auth + pin + has sidebar */}
+              {/* Company Settings - separate page without sidebar, director access */}
+              <Route
+                  path="/company-settings"
+                  element={
+                    <RequireAuth>
+                      <CompanySettings />
+                    </RequireAuth>
+                  }
+              />
+
               <Route
                   path="/*"
                   element={
