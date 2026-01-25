@@ -6,15 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-
-// Simple hash function for demo - in production use bcrypt via edge function
-async function hashPin(pin: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(pin + 'timetracker-salt');
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-}
+import { authQueries } from '@/lib/supabase';
 
 export default function SetPin() {
   const [step, setStep] = useState<'create' | 'confirm'>('create');
@@ -69,7 +61,7 @@ export default function SetPin() {
 
     setIsLoading(true);
     try {
-      const pinHash = await hashPin(pin);
+      const pinHash = await authQueries.hashPin(pin);
       const { error } = await updatePin(pinHash);
 
       if (error) {
@@ -91,29 +83,29 @@ export default function SetPin() {
   const digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 sm:p-6">
       <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
-            <Clock className="h-6 w-6 text-primary-foreground" />
+        <CardHeader className="text-center px-4 sm:px-6">
+          <div className="mx-auto mb-3 sm:mb-4 h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-primary flex items-center justify-center">
+            <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl">
+          <CardTitle className="text-xl sm:text-2xl">
             {step === 'create' ? 'Create Your PIN' : 'Confirm Your PIN'}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm">
             {step === 'create'
               ? 'Enter a 4-digit PIN for quick sign in'
               : 'Re-enter your PIN to confirm'}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           {/* PIN Display */}
-          <div className="flex justify-center gap-3 mb-6">
+          <div className="flex justify-center gap-3 mb-4 sm:mb-6">
             {[0, 1, 2, 3].map((i) => (
               <div
                 key={i}
                 className={cn(
-                  'w-4 h-4 rounded-full transition-all duration-200',
+                  'w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-200',
                   i < currentPin.length ? 'bg-primary scale-110' : 'bg-muted'
                 )}
               />
@@ -122,11 +114,11 @@ export default function SetPin() {
 
           {/* Error */}
           {error && (
-            <p className="text-center text-destructive text-sm mb-4">{error}</p>
+            <p className="text-center text-destructive text-xs sm:text-sm mb-4">{error}</p>
           )}
 
           {/* Keypad */}
-          <div className="grid grid-cols-3 gap-3 justify-items-center">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 justify-items-center">
             {digits.map((digit) => (
               <button
                 key={digit}

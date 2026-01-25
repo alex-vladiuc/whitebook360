@@ -129,7 +129,7 @@
 
   /* PIN keypad button */
   .keypad-button {
-    @apply w-16 h-16 rounded-full bg-secondary text-foreground font-semibold text-xl
+    @apply w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-secondary text-foreground font-semibold text-lg sm:text-xl
            flex items-center justify-center transition-all duration-150
            hover:bg-muted active:scale-95 active:bg-accent;
   }
@@ -182,7 +182,7 @@
 
   /* Live clock styling */
   .live-clock {
-    @apply text-4xl font-bold text-primary tabular-nums tracking-tight;
+    @apply text-3xl sm:text-4xl font-bold text-primary tabular-nums tracking-tight;
   }
 
   /* Centered layout container */
@@ -191,12 +191,12 @@
   }
 
   .content-container-wide {
-    @apply max-w-6xl mx-auto px-6 py-8;
+    @apply max-w-7xl mx-auto px-6 py-8;
   }
 
   /* Employee card in kiosk */
   .employee-kiosk-card {
-    @apply card-interactive p-4 flex flex-col items-center text-center gap-3 w-48;
+    @apply card-interactive p-3 sm:p-4 flex flex-col items-center text-center gap-2 sm:gap-3 w-full sm:w-48;
   }
 
   /* Modal overlay */

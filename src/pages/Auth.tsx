@@ -96,22 +96,22 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 sm:p-6">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
-            <Clock className="h-6 w-6 text-primary-foreground" />
+        <CardHeader className="text-center px-4 sm:px-6">
+          <div className="mx-auto mb-3 sm:mb-4 h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-primary flex items-center justify-center">
+            <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl">
+          <CardTitle className="text-xl sm:text-2xl">
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm">
             {isLogin
-              ? 'Sign in to access TimeTracker Pro'
-              : 'Sign up to get started with TimeTracker Pro'}
+              ? 'Sign in to access WhiteBook 360'
+              : 'Sign up to get started with WhiteBook 360'}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div className="space-y-2">

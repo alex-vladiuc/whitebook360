@@ -23,7 +23,7 @@ export function DateDisplay() {
   const week = format(today, "'Week' w");
 
   return (
-    <p className="text-muted-foreground">
+    <p className="text-sm sm:text-base text-muted-foreground">
       {dayName}, {date} • {week}
     </p>
   );

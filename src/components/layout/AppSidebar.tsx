@@ -16,6 +16,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Archive,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -42,6 +43,7 @@ const adminItems: NavItem[] = [
   { label: "Admin Hours API", href: "/admin/admin-hours", icon: Shield },
   { label: "Invoice Management", href: "/admin/invoice-management", icon: FileText },
   { label: "Admin Invoices", href: "/admin/admin-invoices", icon: Building2 },
+  { label: "Global Archive", href: "/admin/global-archive", icon: Archive },
   { label: "Project Calendar", href: "/admin/project-calendar", icon: Calendar },
   { label: "Task Calendar", href: "/admin/task-calendar", icon: ClipboardList },
   { label: "Visitor Log", href: "/visitor-log", icon: ClipboardCheck },
@@ -125,11 +127,11 @@ export function AppSidebar({
           <div className="flex items-center justify-between px-3 py-4">
             {!collapsed ? (
                 <div>
-                  <div className="text-sm font-semibold text-foreground">TimeTracker Pro</div>
+                  <div className="text-sm font-semibold text-foreground">WhiteBook 360</div>
                   <div className="text-xs text-muted-foreground">Inspiration360</div>
                 </div>
             ) : (
-                <div className="text-sm font-semibold text-foreground">TT</div>
+                <div className="text-sm font-semibold text-foreground">WB</div>
             )}
 
             <button
@@ -188,7 +190,7 @@ export function AppSidebar({
         <aside className="absolute left-0 top-0 h-full w-[280px] bg-card border-r shadow-modal">
           <div className="flex items-center justify-between px-4 py-4 border-b">
             <div>
-              <div className="text-sm font-semibold">TimeTracker Pro</div>
+              <div className="text-sm font-semibold">WhiteBook 360</div>
               <div className="text-xs text-muted-foreground">Menu</div>
             </div>
             <button

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { X, Delete } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface PinKeypadProps {
@@ -45,15 +44,15 @@ export function PinKeypad({
   return (
     <div className="modal-overlay" onClick={onCancel}>
       <div
-        className="bg-card rounded-2xl shadow-modal p-8 w-full max-w-sm animate-scale-in"
+        className="bg-card rounded-2xl shadow-modal p-6 sm:p-8 w-[90vw] max-w-sm animate-scale-in mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div>
-            <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-foreground">{title}</h2>
             {subtitle && (
-              <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">{subtitle}</p>
             )}
           </div>
           <button
@@ -65,12 +64,12 @@ export function PinKeypad({
         </div>
 
         {/* PIN Display */}
-        <div className="flex justify-center gap-3 mb-8">
+        <div className="flex justify-center gap-3 mb-6 sm:mb-8">
           {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
               className={cn(
-                'w-4 h-4 rounded-full transition-all duration-200',
+                'w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-200',
                 i < pin.length ? 'bg-primary scale-110' : 'bg-muted'
               )}
             />
@@ -79,11 +78,11 @@ export function PinKeypad({
 
         {/* Error */}
         {error && (
-          <p className="text-center text-destructive text-sm mb-4">{error}</p>
+          <p className="text-center text-destructive text-xs sm:text-sm mb-4">{error}</p>
         )}
 
         {/* Keypad */}
-        <div className="grid grid-cols-3 gap-3 justify-items-center">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 justify-items-center">
           {digits.map((digit) => (
             <button
               key={digit}

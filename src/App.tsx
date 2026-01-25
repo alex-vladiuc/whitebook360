@@ -12,11 +12,16 @@ import RequireAdmin from "@/components/layout/RequireAdmin";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import SetPin from "./pages/SetPin";
+import PendingApproval from "./pages/PendingApproval";
 import LeaveCalendar from "./pages/LeaveCalendar";
 import VisitorLog from "./pages/VisitorLog";
 import SeeYaLater from "./pages/SeeYaLater";
 import Dashboard from "./pages/admin/Dashboard";
 import EmployeeManagement from "./pages/admin/EmployeeManagement";
+import UserManagement from "./pages/admin/UserManagement";
+import InvoiceManagement from "./pages/admin/InvoiceManagement";
+import InvoiceArchive from "./pages/admin/InvoiceArchive";
+import GlobalArchive from "./pages/admin/GlobalArchive";
 
 // Kiosk variants
 import KioskPrivate from "./pages/KioskPrivate";
@@ -37,8 +42,9 @@ const App = () => (
               {/* Public/auth */}
               <Route path="/auth" element={<Auth />} />
               <Route path="/set-pin" element={<SetPin />} />
+              <Route path="/pending-approval" element={<PendingApproval />} />
 
-              {/* Everything else requires auth + pin */}
+              {/* Everything else requires auth + pin + has sidebar */}
               <Route
                   path="/*"
                   element={
@@ -82,6 +88,38 @@ const App = () => (
                               element={
                                 <RequireAdmin>
                                   <EmployeeManagement />
+                                </RequireAdmin>
+                              }
+                          />
+                          <Route
+                              path="/admin/user-management"
+                              element={
+                                <RequireAdmin>
+                                  <UserManagement />
+                                </RequireAdmin>
+                              }
+                          />
+                          <Route
+                              path="/admin/invoice-management"
+                              element={
+                                <RequireAdmin>
+                                  <InvoiceManagement />
+                                </RequireAdmin>
+                              }
+                          />
+                          <Route
+                              path="/admin/invoice-archive"
+                              element={
+                                <RequireAdmin>
+                                  <InvoiceArchive />
+                                </RequireAdmin>
+                              }
+                          />
+                          <Route
+                              path="/admin/global-archive"
+                              element={
+                                <RequireAdmin>
+                                  <GlobalArchive />
                                 </RequireAdmin>
                               }
                           />

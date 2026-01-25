@@ -50,9 +50,9 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                 />
             </div>
 
-            {/* Top-left hamburger for mobile */}
+            {/* Top-left hamburger for mobile - z-[60] to be above cards */}
             <button
-                className="md:hidden fixed top-4 left-4 z-50 rounded-lg border bg-card px-3 py-2 shadow-card"
+                className="md:hidden fixed top-4 left-4 z-[60] rounded-lg border bg-card px-3 py-2 shadow-lg"
                 onClick={() => setMobileOpen(true)}
                 aria-label="Open menu"
             >
@@ -60,9 +60,9 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             </button>
 
             {/* Main */}
-            <main className={cn("min-h-screen", desktopOffsetClass)}>
-                {/* Centered container like Base44 */}
-                <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8">
+            <main className={cn("min-h-screen pt-16 md:pt-0", desktopOffsetClass)}>
+                 {/* Wide container with responsive padding */}
+                <div className="w-full px-4 py-4 sm:px-6 sm:py-6 md:px-8 lg:px-10">
                     {children}
                 </div>
             </main>
